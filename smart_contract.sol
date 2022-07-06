@@ -7,8 +7,8 @@ contract Lottery {
         address[] ticketsOfPlayers;
     }
 
-    address payable public ow1;
-    address payable public ow2;
+    address payable public owner1;
+    address payable public owner2;
 
     address[3] public potential_winners;
     Item[3] public items;
@@ -18,8 +18,8 @@ contract Lottery {
 
     constructor() public payable 
     {
-        ow1 = msg.sender;
-        ow2 = address(0x153dfef4355E823dCB0FCc76Efe942BefCa86477);
+        owner1 = msg.sender;
+        owner2 = address(0x153dfef4355E823dCB0FCc76Efe942BefCa86477);
         finished = false;
 
         for(uint i=0; i<3; i++){
@@ -27,25 +27,15 @@ contract Lottery {
         }
         
     }
-     function bid(uint itemId) public payable minVal notFinished nonOwner {
-        items[itemId].ticketsOfPlayers.push(msg.sender);
-    }
 
     function random() view private returns(uint){return uint(keccak256(abi.encodePacked(block.difficulty, now)));}
 
+    function bid(uint itemId) public payable minVal notFinished nonOwner {
+        items[itemId].ticketsOfPlayers.push(msg.sender);
+    }
 
     function withdraw() public payable onlyOwners{
         msg.sender.transfer(address(this).balance);
-    }
-
-    
-
-    function tokenCounts() public view returns(uint[3] memory){
-        uint[3] memory tokens;
-        for(uint i=0; i<3; i++){
-            tokens[i] = items[i].ticketsOfPlayers.length;
-        }
-        return tokens;
     }
 
     function revealWinners() public notFinished onlyOwners{
@@ -61,19 +51,27 @@ contract Lottery {
         finished = true;
     }
 
+    function tokenCounts() public view returns(uint[3] memory){
+        uint[3] memory tokens;
+        for(uint i=0; i<3; i++){
+            tokens[i] = items[i].ticketsOfPlayers.length;
+        }
+        return tokens;
+    }
+
     function amIWinner() public view isFinished returns(uint[3] memory){
-        uint[3] memory itemswon;
+        uint[3] memory wonItems;
         for(uint i=0; i<3; i++){
             if(potential_winners[i] == msg.sender)
             {
-                itemswon[i] = i+1; 
+                wonItems[i] = i+1; 
             }
             else 
             {
-                itemswon[i] = 0;
+                wonItems[i] = 0;
             }
         }
-        return itemswon;
+        return wonItems;
     }
 
     modifier minVal(){
@@ -89,24 +87,8 @@ contract Lottery {
         }
            _;
     }
-  modifier nonOwner() {
-        if( msg.sender == ow1 || msg.sender == ow2){
-            revert();
-        }
-            _;
-    }
 
-
-   
-
-    modifier onlyOwners(){
-        if(!(msg.sender == ow1 || msg.sender == ow2)){
-             revert();        
-        }
-            _;
-    }
-
-     modifier isFinished(){
+    modifier isFinished(){
         if(!(finished)){
             revert();
         }
@@ -114,6 +96,18 @@ contract Lottery {
      
     }
 
-  
+    modifier onlyOwners(){
+        if(!(msg.sender == owner1 || msg.sender == owner2)){
+             revert();        
+        }
+            _;
+    }
+
+    modifier nonOwner() {
+        if( msg.sender == owner1 || msg.sender == owner2){
+            revert();
+        }
+            _;
+    }
 }
 
