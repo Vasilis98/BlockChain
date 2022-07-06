@@ -179,7 +179,7 @@ web3.eth.getAccounts((err, acc) => {
     }
 })
 
-const contractAddr = '0x610d8e03E33402DE84ef6d8a48e2Ca3Ea85A19da';
+const contractAddr = '0x4A5205F71FD4251cb94c72bcfa57584D42e7d3B1';
 
 const contract = new web3.eth.Contract(abi, contractAddr);
 
